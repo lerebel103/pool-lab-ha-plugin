@@ -16,5 +16,66 @@
     "abort": {
       "already_configured": "This device is already configured."
     }
+  },
+  "entity": {
+    "sensor": {
+      "water_temperature": { "name": "Water Temperature" },
+      "ph_level": { "name": "pH Level" },
+      "chlorine_level": { "name": "Chlorine Level" },
+      "chlorinator_target": { "name": "Chlorinator Target" },
+      "chlorinator_actual": { "name": "Chlorinator Output" },
+      "pump_speed": { "name": "Pump Speed" },
+      "pool_set_temperature": { "name": "Pool Set Temperature" },
+      "spa_set_temperature": { "name": "Spa Set Temperature" }
+    },
+    "binary_sensor": {
+      "cell_flow": { "name": "Cell Flow" },
+      "low_flow_fault": { "name": "Low Flow Fault" },
+      "low_salt": { "name": "Low Salt" },
+      "high_salt": { "name": "High Salt" },
+      "cell_output_fault": { "name": "Cell Output Fault" },
+      "pump_protect": { "name": "Pump Protect" },
+      "chlorinator_active": { "name": "Chlorinator Active" },
+      "water_sensor_fault": { "name": "Water Sensor Fault" },
+      "solar_hot_sensor_fault": { "name": "Solar Hot Sensor Fault" },
+      "solar_cold_sensor_fault": { "name": "Solar Cold Sensor Fault" },
+      "reagent_ph": { "name": "pH Reagent Empty" },
+      "reagent_chlorine_1": { "name": "Chlorine Reagent 1 Empty" },
+      "reagent_chlorine_2": { "name": "Chlorine Reagent 2 Empty" },
+      "acid_pump_active": { "name": "Acid Pump Active" },
+      "chlorine_below_target": { "name": "Chlorine Below Target" },
+      "ph_above_target": { "name": "pH Above Target" }
+    },
+    "switch": {
+      "filter": { "name": "Filter" },
+      "spa_mode": { "name": "Spa Mode" },
+      "solar_heat": { "name": "Solar Heat" },
+      "heater": { "name": "Heater" },
+      "pool_light": { "name": "Pool Light" },
+      "spa_light": { "name": "Spa Light" },
+      "spa_boost": { "name": "Spa Boost" },
+      "blower": { "name": "Blower" },
+      "infloor": { "name": "Infloor Cleaning" },
+      "cleaner": { "name": "Cleaner" },
+      "fountain": { "name": "Fountain" },
+      "aux_1": { "name": "AUX 1" },
+      "aux_2": { "name": "AUX 2" },
+      "aux_3": { "name": "AUX 3" },
+      "aux_4": { "name": "AUX 4" },
+      "aux_5": { "name": "AUX 5" },
+      "aux_6": { "name": "AUX 6" },
+      "aux_7": { "name": "AUX 7" },
+      "aux_8": { "name": "AUX 8" },
+      "aux_9": { "name": "AUX 9" },
+      "valve_3": { "name": "Valve 3" },
+      "valve_4": { "name": "Valve 4" }
+    },
+    "number": {
+      "pool_temp_target": { "name": "Pool Temperature Target" },
+      "spa_temp_target": { "name": "Spa Temperature Target" },
+      "ph_target": { "name": "pH Target" },
+      "chlorine_target": { "name": "Chlorine Target" },
+      "chlorinator_output": { "name": "Chlorinator Output" }
+    }
   }
 }

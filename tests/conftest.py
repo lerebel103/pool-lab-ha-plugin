@@ -10,9 +10,17 @@ from unittest.mock import MagicMock
 # without a full Home Assistant installation.
 for mod in [
     "homeassistant",
+    "homeassistant.components",
+    "homeassistant.components.binary_sensor",
+    "homeassistant.components.number",
+    "homeassistant.components.sensor",
+    "homeassistant.components.switch",
     "homeassistant.config_entries",
     "homeassistant.const",
     "homeassistant.core",
+    "homeassistant.helpers",
+    "homeassistant.helpers.entity_platform",
+    "homeassistant.helpers.update_coordinator",
     "voluptuous",
 ]:
     sys.modules.setdefault(mod, MagicMock())
