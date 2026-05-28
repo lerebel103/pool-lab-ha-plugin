@@ -1,5 +1,7 @@
 {
   "name": "Pool Lab",
   "description": "Home Assistant integration for the Pool Lab PL Max Series of controllers.",
-  "render_readme": true
+  "render_readme": true,
+  "zip_release": true,
+  "filename": "pool_lab.zip"
 }
