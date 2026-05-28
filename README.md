@@ -1,6 +1,18 @@
 # Pool Lab - Home Assistant Integration
 
-A custom Home Assistant integration for Pool Lab Max series devices.
+Home Assistant integration for the Pool Lab PL Max Series of controllers.
+
+## Compatible Devices
+
+This integration supports the following Pool Lab models:
+
+| Series | Models |
+|--------|--------|
+| PL25 | Classic, Plus, MAX |
+| PL35 | Classic, Plus, MAX |
+| PL45 | Classic, Plus, MAX |
+
+Any device in the PL25, PL35, or PL45 range with network connectivity is supported.
 
 ## Installation via HACS
 
