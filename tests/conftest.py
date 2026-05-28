@@ -13,6 +13,7 @@ for mod in [
     "homeassistant.components",
     "homeassistant.components.binary_sensor",
     "homeassistant.components.number",
+    "homeassistant.components.select",
     "homeassistant.components.sensor",
     "homeassistant.components.switch",
     "homeassistant.config_entries",

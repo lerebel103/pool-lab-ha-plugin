@@ -47,28 +47,87 @@
       "ph_above_target": { "name": "pH Above Target" }
     },
     "switch": {
-      "filter": { "name": "Filter" },
       "spa_mode": { "name": "Spa Mode" },
       "solar_heat": { "name": "Solar Heat" },
-      "heater": { "name": "Heater" },
-      "pool_light": { "name": "Pool Light" },
-      "spa_light": { "name": "Spa Light" },
-      "spa_boost": { "name": "Spa Boost" },
-      "blower": { "name": "Blower" },
-      "infloor": { "name": "Infloor Cleaning" },
-      "cleaner": { "name": "Cleaner" },
-      "fountain": { "name": "Fountain" },
-      "aux_1": { "name": "AUX 1" },
-      "aux_2": { "name": "AUX 2" },
-      "aux_3": { "name": "AUX 3" },
-      "aux_4": { "name": "AUX 4" },
-      "aux_5": { "name": "AUX 5" },
-      "aux_6": { "name": "AUX 6" },
-      "aux_7": { "name": "AUX 7" },
-      "aux_8": { "name": "AUX 8" },
-      "aux_9": { "name": "AUX 9" },
-      "valve_3": { "name": "Valve 3" },
-      "valve_4": { "name": "Valve 4" }
+      "heater": { "name": "Heater" }
+    },
+    "select": {
+      "filter_mode": {
+        "name": "Filter Mode",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "pool_light_mode": {
+        "name": "Pool Light",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "spa_light_mode": {
+        "name": "Spa Light",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "spa_boost_mode": {
+        "name": "Spa Boost",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "blower_mode": {
+        "name": "Blower",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "infloor_mode": {
+        "name": "Infloor Cleaning",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "cleaner_mode": {
+        "name": "Cleaner",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "fountain_mode": {
+        "name": "Fountain",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "aux_1_mode": {
+        "name": "AUX 1",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "aux_2_mode": {
+        "name": "AUX 2",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "aux_3_mode": {
+        "name": "AUX 3",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "aux_4_mode": {
+        "name": "AUX 4",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "aux_5_mode": {
+        "name": "AUX 5",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "aux_6_mode": {
+        "name": "AUX 6",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "aux_7_mode": {
+        "name": "AUX 7",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "aux_8_mode": {
+        "name": "AUX 8",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "aux_9_mode": {
+        "name": "AUX 9",
+        "state": { "off": "Off", "on": "On", "auto": "Auto" }
+      },
+      "valve_3_mode": {
+        "name": "Valve 3",
+        "state": { "off": "Position 1", "on": "Position 2", "auto": "Auto" }
+      },
+      "valve_4_mode": {
+        "name": "Valve 4",
+        "state": { "off": "Position 1", "on": "Position 2", "auto": "Auto" }
+      }
     },
     "number": {
       "pool_temp_target": { "name": "Pool Temperature Target" },
