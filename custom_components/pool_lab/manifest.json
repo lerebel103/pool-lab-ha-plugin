@@ -1,0 +1,11 @@
+{
+  "domain": "pool_lab",
+  "name": "Pool Lab",
+  "codeowners": [],
+  "config_flow": true,
+  "documentation": "https://github.com/willc/pool-lab-ha-plugin",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "requirements": ["aiohttp"],
+  "version": "0.1.0"
+}

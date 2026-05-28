@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Pool Lab Device",
+        "description": "Enter the IP address or hostname and port of your Pool Lab device.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the Pool Lab device. Please check the host and port."
+    },
+    "abort": {
+      "already_configured": "This device is already configured."
+    }
+  }
+}
