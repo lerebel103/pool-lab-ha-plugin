@@ -139,7 +139,7 @@ class PoolLabNumber(CoordinatorEntity[PoolLabCoordinator], NumberEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
             "name": f"Pool Lab ({entry.data['host']})",
-            "manufacturer": "Poolpower Australia",
+            "manufacturer": "lerebel103",
             "model": "PL MAX Series",
         }
 
