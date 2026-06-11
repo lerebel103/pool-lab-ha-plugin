@@ -4,9 +4,9 @@
   "codeowners": ["@lerebel103"],
   "config_flow": true,
   "documentation": "https://github.com/lerebel103/pool-lab-ha-plugin",
-  "issue_tracker": "https://github.com/lerebel103/pool-lab-ha-plugin/issues",
   "integration_type": "device",
   "iot_class": "local_push",
+  "issue_tracker": "https://github.com/lerebel103/pool-lab-ha-plugin/issues",
   "requirements": [],
   "version": "0.2.0"
 }
