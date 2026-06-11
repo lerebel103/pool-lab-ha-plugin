@@ -5,3 +5,19 @@ repos:
       - id: ruff
         args: [--fix]
       - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: validate-manifest
+        name: Validate manifest.json
+        entry: python scripts/validate_manifest.py
+        language: system
+        files: manifest\.json$
+        pass_filenames: false
+
+      - id: pytest
+        name: Run tests
+        entry: python -m pytest tests/ -x -q
+        language: system
+        pass_filenames: false
+        always_run: true

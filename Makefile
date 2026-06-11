@@ -1,14 +1,17 @@
-.PHONY: lint format check test test-cov clean install ci
+.PHONY: lint format check test test-cov clean install ci validate
 
 lint:
 	ruff check custom_components/ tests/
 	ruff format --check custom_components/ tests/
 
+validate:
+	python scripts/validate_manifest.py
+
 format:
 	ruff check --fix custom_components/ tests/
 	ruff format custom_components/ tests/
 
-check: lint
+check: lint validate
 
 test:
 	python -m pytest tests/ -v
@@ -23,4 +26,4 @@ clean:
 install:
 	pip install -e ".[dev]"
 
-ci: lint test
+ci: lint validate test
