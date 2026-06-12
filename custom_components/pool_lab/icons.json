@@ -1,0 +1,54 @@
+{
+  "entity": {
+    "sensor": {
+      "water_temperature": { "default": "mdi:thermometer-water" },
+      "ph_level": { "default": "mdi:ph" },
+      "chlorine_level": { "default": "mdi:flask-outline" },
+      "chlorinator_target": { "default": "mdi:gauge" },
+      "chlorinator_actual": { "default": "mdi:gauge" },
+      "pump_speed": { "default": "mdi:pump" },
+      "pool_set_temperature": { "default": "mdi:thermometer-water" },
+      "spa_set_temperature": { "default": "mdi:thermometer-water" }
+    },
+    "binary_sensor": {
+      "cell_flow": { "default": "mdi:water-pump" },
+      "low_flow_fault": { "default": "mdi:water-off" },
+      "low_salt": { "default": "mdi:shaker-outline" },
+      "high_salt": { "default": "mdi:shaker" },
+      "cell_output_fault": { "default": "mdi:alert-circle" },
+      "pump_protect": { "default": "mdi:shield-alert" },
+      "chlorinator_active": { "default": "mdi:flash" },
+      "water_sensor_fault": { "default": "mdi:thermometer-alert" },
+      "solar_hot_sensor_fault": { "default": "mdi:thermometer-alert" },
+      "solar_cold_sensor_fault": { "default": "mdi:thermometer-alert" },
+      "reagent_ph": { "default": "mdi:flask" },
+      "reagent_chlorine_1": { "default": "mdi:flask" },
+      "reagent_chlorine_2": { "default": "mdi:flask" },
+      "acid_pump_active": { "default": "mdi:pump" },
+      "chlorine_below_target": { "default": "mdi:flask-minus" },
+      "ph_above_target": { "default": "mdi:flask-plus" }
+    },
+    "switch": {
+      "spa_mode": { "default": "mdi:hot-tub" },
+      "solar_heat": { "default": "mdi:solar-power" },
+      "heater": { "default": "mdi:fire" }
+    },
+    "select": {
+      "filter_mode": { "default": "mdi:air-filter" },
+      "pool_light_mode": { "default": "mdi:lightbulb" },
+      "spa_light_mode": { "default": "mdi:lightbulb" },
+      "spa_boost_mode": { "default": "mdi:rocket-launch" },
+      "blower_mode": { "default": "mdi:fan" },
+      "infloor_mode": { "default": "mdi:robot-vacuum" },
+      "cleaner_mode": { "default": "mdi:robot-vacuum" },
+      "fountain_mode": { "default": "mdi:fountain" }
+    },
+    "number": {
+      "pool_temp_target": { "default": "mdi:thermometer-water" },
+      "spa_temp_target": { "default": "mdi:thermometer-water" },
+      "ph_target": { "default": "mdi:ph" },
+      "chlorine_target": { "default": "mdi:flask-outline" },
+      "chlorinator_output": { "default": "mdi:gauge" }
+    }
+  }
+}
