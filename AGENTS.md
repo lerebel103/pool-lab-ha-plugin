@@ -3,7 +3,9 @@
 ## Git Policy
 
 **Never commit, push, or interact with git in any way without explicit user permission.**
-This includes but is not limited to: `git add`, `git commit`, `git push`, `git stash`, `git reset`, `git checkout`, `git branch`, creating tags, or any other git operation. Always ask first.
+This includes but is not limited to: `git add`, `git commit`, `git push`, `git stash`, `git reset`, `git checkout`, `git branch`, creating tags, or any other git operation.
+
+**Always ask first.** Even when the user says "push" or "commit", confirm the exact action before executing. Do not chain git operations (e.g. commit + push + tag) without listing each step and receiving approval. The user must grant permission for each distinct git action or explicitly approve a sequence.
 
 ## Code Quality
 
