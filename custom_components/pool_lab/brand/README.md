@@ -9,8 +9,8 @@ Home Assistant 2026.3+ serves these automatically via `/api/brands/integration/p
 |------|---------|--------|------|
 | `icon.png` | Square icon (integration list, device cards) | PNG, transparent background | 256x256 px |
 | `icon@2x.png` | High-DPI square icon | PNG, transparent background | 512x512 px |
-| `logo.png` | Rectangular logo (config page, detail views) | PNG, transparent background | 256x128 px |
-| `logo@2x.png` | High-DPI rectangular logo | PNG, transparent background | 512x256 px |
+| `logo.png` | Logo (config page, detail views) | PNG, transparent background | 128x128 px |
+| `logo@2x.png` | High-DPI logo | PNG, transparent background | 256x256 px |
 
 ## Optional dark mode variants
 
