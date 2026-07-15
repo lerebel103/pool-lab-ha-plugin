@@ -225,6 +225,10 @@ def _apply_field(state: PoolLabState, key: str, value: str) -> None:
         state.chlorinator_actual = int(value)
 
     # Temperature
+    # NOTE: WATERTEMP is transmitted as tenths of a degree (e.g. 280 = 28.0°C),
+    # whereas POOLSET and SPASET are transmitted as full degrees (e.g. 28.00).
+    # The command builders (cmd_pool_temp_target, cmd_spa_temp_target) multiply
+    # by 10 because the device expects tenths for set-point *writes*.
     elif key == "WATERTEMP":
         state.water_temp = int(value) / 10.0
     elif key == "POOLSET":
@@ -233,6 +237,9 @@ def _apply_field(state: PoolLabState, key: str, value: str) -> None:
         state.spa_set_temp = float(value)
 
     # Water chemistry
+    # NOTE: CLLEVEL/PHLEVEL/CLTARG/PHTARG are transmitted as actual values
+    # (e.g. 7.60, 1.60). The command builders (cmd_ph_target, cmd_chlorine_target)
+    # multiply by 10 because the device expects tenths for *writes*.
     elif key == "CLLEVEL":
         state.chlorine_level = float(value)
     elif key == "PHLEVEL":
@@ -325,10 +332,14 @@ def _parse_history(value: str) -> list[float | None]:
     """Parse a comma-separated history string.
 
     Values of -1.0 are treated as 'no data' and returned as None.
+    Empty items (e.g. from trailing commas) are also treated as None.
     """
     result: list[float | None] = []
     for item in value.split(","):
         item = item.strip()
+        if not item:
+            result.append(None)
+            continue
         val = float(item)
         result.append(None if val < 0 else val)
     return result

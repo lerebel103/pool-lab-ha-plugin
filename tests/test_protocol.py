@@ -202,3 +202,14 @@ class TestStatusParsing:
         """Unknown fields should not raise errors."""
         state = parse_status_update("UNKNOWN_FIELD=42;FILTER=2")
         assert state.filter_mode == OutputMode.AUTO
+
+    def test_parse_history_trailing_comma(self) -> None:
+        """Trailing comma / empty items should be parsed as None."""
+        state = parse_status_update("PHTH=7.6,7.6,")
+        assert state.ph_history == [7.6, 7.6, None]
+
+    def test_parse_history_empty_value(self) -> None:
+        """Completely empty history value should yield empty list or single None."""
+        state = parse_status_update("PHTH=")
+        # Empty string after split gives one empty item
+        assert state.ph_history == [None]

@@ -17,6 +17,7 @@ This includes but is not limited to: `git add`, `git commit`, `git push`, `git s
 ## Project Structure
 
 - Integration code lives in `custom_components/pool_lab/`.
+- Protocol specifications live in `docs/protocol.md`. Always refer to this document when implementing or modifying protocol-level code (commands, parsing, field formats) to ensure consistency with the device behavior.
 - Do not add files outside this structure unless they are project-level config (Makefile, pyproject.toml, README, etc.).
 - Do not introduce new dependencies without discussing it first.
 
@@ -25,3 +26,11 @@ This includes but is not limited to: `git add`, `git commit`, `git push`, `git s
 - Tests go in the `tests/` directory.
 - Use `pytest` with `pytest-asyncio` for async tests.
 - Run tests with `make test`.
+
+## Versioning
+
+- The git tag is the **single source of truth** for the version.
+- `manifest.json` contains `"version": "0.0.0"` as a dev placeholder. Do not manually update this value.
+- `pyproject.toml` contains `version = "0.0.0"` as a dev placeholder (required by setuptools). Do not manually update this value.
+- The release workflow (`.github/workflows/release.yml`) stamps the real version from the tag into `manifest.json` before creating the release zip.
+- To release: push a semver tag (e.g. `v0.5.0`) to `main`. The workflow handles the rest.

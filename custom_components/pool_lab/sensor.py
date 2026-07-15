@@ -21,8 +21,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import DOMAIN, OutputMode, SystemFlag
 from .coordinator import PoolLabCoordinator
+from .entity import build_device_info
 from .models import PoolLabState
 
 
@@ -31,6 +32,7 @@ class PoolLabSensorDescription(SensorEntityDescription):
     """Describes a Pool Lab sensor entity."""
 
     value_fn: Callable[[PoolLabState], float | int | str | None]
+    available_fn: Callable[[PoolLabState], bool] | None = None
 
 
 SENSOR_DESCRIPTIONS: tuple[PoolLabSensorDescription, ...] = (
@@ -95,6 +97,13 @@ SENSOR_DESCRIPTIONS: tuple[PoolLabSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda state: state.spa_set_temp,
     ),
+    PoolLabSensorDescription(
+        key="aux_10_mode",
+        translation_key="aux_10_mode",
+        icon="mdi:electric-switch",
+        value_fn=lambda state: state.aux_modes.get(10, OutputMode.OFF).name.lower(),
+        available_fn=lambda s: bool(s.system_flags & SystemFlag.AUX10),
+    ),
 )
 
 
@@ -127,13 +136,8 @@ class PoolLabSensor(CoordinatorEntity[PoolLabCoordinator], SensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self.entity_description = description
-        self._attr_unique_id = f"{entry.entry_id}_{description.key}"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": f"Pool Lab ({entry.data['host']})",
-            "manufacturer": "lerebel103",
-            "model": "PL MAX Series",
-        }
+        self._attr_unique_id = f"{entry.unique_id or entry.entry_id}_{description.key}"
+        self._attr_device_info = build_device_info(entry)
 
     @property
     def native_value(self) -> float | int | str | None:
@@ -141,3 +145,14 @@ class PoolLabSensor(CoordinatorEntity[PoolLabCoordinator], SensorEntity):
         if self.coordinator.data is None:
             return None
         return self.entity_description.value_fn(self.coordinator.data)
+
+    @property
+    def available(self) -> bool:
+        """Return True if the entity is available."""
+        if not super().available:
+            return False
+        if self.entity_description.available_fn is None:
+            return True
+        if self.coordinator.data is None:
+            return False
+        return self.entity_description.available_fn(self.coordinator.data)

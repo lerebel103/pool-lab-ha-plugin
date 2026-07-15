@@ -157,3 +157,73 @@ class TestPoolLabClientSendCommand:
         assert "FILTER=1" in response
         assert "WATERTEMP=280" in response
         await client.close()
+
+
+class TestPoolLabClientConsumeInitialStatus:
+    """Tests for the consume_initial_status method."""
+
+    async def test_consume_returns_and_clears(self, tcp_server) -> None:
+        """Test that consume_initial_status returns the status and clears it."""
+
+        async def handler(reader, writer):
+            writer.write(b"connected\n")
+            await writer.drain()
+            writer.write(f"{SAMPLE_STATUS}\n".encode())
+            await writer.drain()
+            await reader.read(1024)
+            writer.close()
+
+        host, port = await tcp_server(handler)
+        client = PoolLabClient(host, port)
+
+        await client.connect()
+        assert client.initial_status == SAMPLE_STATUS
+
+        # First consume should return the status
+        result = client.consume_initial_status()
+        assert result == SAMPLE_STATUS
+
+        # Subsequent reads should return None
+        assert client.initial_status is None
+        assert client.consume_initial_status() is None
+
+        await client.close()
+
+
+class TestPoolLabClientDrainTimeout:
+    """Tests for the drain() timeout behavior."""
+
+    @pytest.mark.skipif(
+        __import__("sys").version_info < (3, 11),
+        reason="asyncio.TimeoutError == TimeoutError only on 3.11+",
+    )
+    async def test_drain_timeout_raises_connection_error(self, tcp_server, monkeypatch) -> None:
+        """Test that a blocking drain() times out and raises ConnectionError."""
+        import custom_components.pool_lab.client as client_mod
+
+        monkeypatch.setattr(client_mod, "DEFAULT_TIMEOUT", 0.2)
+
+        async def handler(reader, writer):
+            writer.write(b"connected\n")
+            await writer.drain()
+            writer.write(f"{SAMPLE_STATUS}\n".encode())
+            await writer.drain()
+            await asyncio.sleep(10)
+            writer.close()
+
+        host, port = await tcp_server(handler)
+        client = PoolLabClient(host, port)
+
+        await client.connect()
+
+        # Monkeypatch the writer's drain to simulate a hang
+        async def blocking_drain():
+            await asyncio.sleep(10)
+
+        client._writer.drain = blocking_drain
+
+        with pytest.raises(ConnectionError, match="Communication error"):
+            await client.send_command("up;\r")
+
+        # Connection should be closed after the error
+        assert client.connected is False

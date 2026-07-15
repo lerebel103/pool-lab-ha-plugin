@@ -59,7 +59,7 @@ class PoolLabState:
     chlorine_target: float | None = None  # ppm
     ph_target: float | None = None
 
-    # AUX outputs (keyed by number 1-10)
+    # AUX outputs (keyed by number 1-10; commands only support 1-9, AUX10 is read-only)
     aux_modes: dict[int, OutputMode] = field(default_factory=dict)
 
     # Valves

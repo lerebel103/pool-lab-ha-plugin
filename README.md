@@ -6,6 +6,8 @@
 
 Home Assistant integration for the Pool Lab PL Max Series of controllers.
 
+> **Disclaimer:** This is an unofficial, community-maintained integration. It is not affiliated with, endorsed by, or supported by Poolpower Australia Pty Ltd (the manufacturer of Pool Lab devices). "Pool Lab" is a trademark of Poolpower Australia. This project is developed and maintained independently in the author's own time to support the Home Assistant community.
+
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.][hacs-install-badge]][hacs-install-url]
 
 ## Compatible Devices
@@ -77,7 +79,9 @@ make ci
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+The Pool Lab name and branding are trademarks of Poolpower Australia Pty Ltd. Any product names, logos, or brands used in this project are for identification purposes only and remain the property of their respective owners.
 
 ---
 

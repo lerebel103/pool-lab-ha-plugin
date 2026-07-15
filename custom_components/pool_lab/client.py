@@ -58,6 +58,15 @@ class PoolLabClient:
         """
         return self._initial_status
 
+    def consume_initial_status(self) -> str | None:
+        """Return and clear the initial status from the handshake.
+
+        This ensures the status is only used once after each connection.
+        """
+        status = self._initial_status
+        self._initial_status = None
+        return status
+
     async def connect(self) -> None:
         """Establish a TCP connection to the Pool Lab device.
 
@@ -129,7 +138,7 @@ class PoolLabClient:
         async with self._lock:
             try:
                 self._writer.write(command.encode())
-                await self._writer.drain()
+                await asyncio.wait_for(self._writer.drain(), timeout=DEFAULT_TIMEOUT)
                 return await self._read_line()
             except (TimeoutError, OSError) as err:
                 await self.close()

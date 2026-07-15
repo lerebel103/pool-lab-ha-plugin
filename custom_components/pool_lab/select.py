@@ -17,6 +17,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, OutputMode, SystemFlag, SystemFlag2
 from .coordinator import PoolLabCoordinator
+from .entity import build_device_info
 from .models import PoolLabState
 from .protocol import (
     cmd_aux,
@@ -190,13 +191,8 @@ class PoolLabSelect(CoordinatorEntity[PoolLabCoordinator], SelectEntity):
         """Initialize the select entity."""
         super().__init__(coordinator)
         self.entity_description = description
-        self._attr_unique_id = f"{entry.entry_id}_{description.key}"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": f"Pool Lab ({entry.data['host']})",
-            "manufacturer": "lerebel103",
-            "model": "PL MAX Series",
-        }
+        self._attr_unique_id = f"{entry.unique_id or entry.entry_id}_{description.key}"
+        self._attr_device_info = build_device_info(entry)
 
     @property
     def current_option(self) -> str | None:

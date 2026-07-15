@@ -26,7 +26,8 @@
       "chlorinator_actual": { "name": "Chlorinator Output" },
       "pump_speed": { "name": "Pump Speed" },
       "pool_set_temperature": { "name": "Pool Set Temperature" },
-      "spa_set_temperature": { "name": "Spa Set Temperature" }
+      "spa_set_temperature": { "name": "Spa Set Temperature" },
+      "aux_10_mode": { "name": "AUX 10" }
     },
     "binary_sensor": {
       "cell_flow": { "name": "Cell Flow" },
