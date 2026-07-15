@@ -40,8 +40,8 @@ class PoolLabConfigFlow(ConfigFlow, domain=DOMAIN):
             try:
                 await client.connect()
                 await client.close()
-            except Exception:
-                _LOGGER.exception("Failed to connect to Pool Lab device")
+            except (ConnectionError, TimeoutError, OSError) as err:
+                _LOGGER.warning("Failed to connect to Pool Lab device: %s", err)
                 errors["base"] = "cannot_connect"
             else:
                 # Set unique ID based on host:port to prevent duplicates
@@ -51,8 +51,8 @@ class PoolLabConfigFlow(ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(
                     title=f"Pool Lab ({host})",
                     data={
-                        "host": host,
-                        "port": port,
+                        CONF_HOST: host,
+                        CONF_PORT: port,
                     },
                 )
 

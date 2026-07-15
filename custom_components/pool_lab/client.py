@@ -129,7 +129,7 @@ class PoolLabClient:
         async with self._lock:
             try:
                 self._writer.write(command.encode())
-                await self._writer.drain()
+                await asyncio.wait_for(self._writer.drain(), timeout=DEFAULT_TIMEOUT)
                 return await self._read_line()
             except (TimeoutError, OSError) as err:
                 await self.close()

@@ -6,6 +6,7 @@ updates, and provides the parsed device state to all entities.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from datetime import timedelta
 
@@ -39,6 +40,7 @@ class PoolLabCoordinator(DataUpdateCoordinator[PoolLabState]):
         )
         self.client = client
         self._initial_status: str | None = None
+        self._connect_lock = asyncio.Lock()
 
     def set_initial_status(self, raw_status: str) -> None:
         """Store the initial status received during connection handshake.
@@ -60,12 +62,13 @@ class PoolLabCoordinator(DataUpdateCoordinator[PoolLabState]):
             self._initial_status = None
             return parse_status_update(raw)
 
-        # Ensure we're connected
-        if not self.client.connected:
-            try:
-                await self.client.connect()
-            except ConnectionError as err:
-                raise UpdateFailed(f"Cannot reconnect to device: {err}") from err
+        # Ensure we're connected (with lock to prevent concurrent reconnects)
+        await self._ensure_connected()
+
+        # If we just reconnected, the handshake already gave us fresh state
+        if self.client.initial_status:
+            raw = self.client.initial_status
+            return parse_status_update(raw)
 
         # Request a status update
         try:
@@ -81,11 +84,7 @@ class PoolLabCoordinator(DataUpdateCoordinator[PoolLabState]):
         Used by entity platforms to issue control commands.
         After sending, requests a fresh status update to sync state.
         """
-        if not self.client.connected:
-            try:
-                await self.client.connect()
-            except ConnectionError as err:
-                raise UpdateFailed(f"Cannot reconnect to device: {err}") from err
+        await self._ensure_connected()
 
         try:
             await self.client.send_command(command)
@@ -94,3 +93,20 @@ class PoolLabCoordinator(DataUpdateCoordinator[PoolLabState]):
 
         # Request immediate refresh
         await self.async_request_refresh()
+
+    async def _ensure_connected(self) -> None:
+        """Ensure the client is connected, reconnecting if necessary.
+
+        Uses a lock to prevent concurrent reconnection attempts.
+        """
+        if self.client.connected:
+            return
+
+        async with self._connect_lock:
+            # Double-check after acquiring the lock
+            if self.client.connected:
+                return
+            try:
+                await self.client.connect()
+            except ConnectionError as err:
+                raise UpdateFailed(f"Cannot reconnect to device: {err}") from err

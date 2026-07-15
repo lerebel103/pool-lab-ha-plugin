@@ -17,6 +17,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, OutputMode, PoolSpaMode, SystemFlag
 from .coordinator import PoolLabCoordinator
+from .entity import build_device_info
 from .models import PoolLabState
 from .protocol import (
     cmd_heater,
@@ -98,12 +99,7 @@ class PoolLabSwitch(CoordinatorEntity[PoolLabCoordinator], SwitchEntity):
         super().__init__(coordinator)
         self.entity_description = description
         self._attr_unique_id = f"{entry.entry_id}_{description.key}"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": f"Pool Lab ({entry.data['host']})",
-            "manufacturer": "lerebel103",
-            "model": "PL MAX Series",
-        }
+        self._attr_device_info = build_device_info(entry)
 
     @property
     def is_on(self) -> bool | None:

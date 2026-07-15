@@ -5,8 +5,9 @@ from __future__ import annotations
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform
+from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 
 from .client import PoolLabClient
 from .const import DOMAIN
@@ -27,16 +28,15 @@ PoolLabConfigEntry = ConfigEntry
 
 async def async_setup_entry(hass: HomeAssistant, entry: PoolLabConfigEntry) -> bool:
     """Set up Pool Lab from a config entry."""
-    host = entry.data["host"]
-    port = entry.data["port"]
+    host = entry.data[CONF_HOST]
+    port = entry.data[CONF_PORT]
 
     client = PoolLabClient(host, port)
 
     try:
         await client.connect()
     except ConnectionError as err:
-        _LOGGER.error("Failed to connect to Pool Lab device at %s:%s: %s", host, port, err)
-        return False
+        raise ConfigEntryNotReady(f"Cannot connect to Pool Lab at {host}:{port}: {err}") from err
 
     coordinator = PoolLabCoordinator(hass, client)
 
