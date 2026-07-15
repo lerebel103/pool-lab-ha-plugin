@@ -10,7 +10,7 @@ from .const import DOMAIN
 
 
 def build_device_info(entry: ConfigEntry) -> DeviceInfo:
-    """Build the shared device info dict for all Pool Lab entities.
+    """Build the shared DeviceInfo for all Pool Lab entities.
 
     Uses entry.unique_id (host:port) as the stable device identifier
     so that the device registry entry is preserved across re-configurations.
