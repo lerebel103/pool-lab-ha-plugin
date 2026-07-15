@@ -40,7 +40,7 @@ class PoolLabConfigFlow(ConfigFlow, domain=DOMAIN):
             try:
                 await client.connect()
                 await client.close()
-            except (ConnectionError, TimeoutError, OSError) as err:
+            except ConnectionError as err:
                 _LOGGER.warning("Failed to connect to Pool Lab device: %s", err)
                 errors["base"] = "cannot_connect"
             else:
