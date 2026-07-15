@@ -87,6 +87,10 @@ class PoolLabCoordinator(DataUpdateCoordinator[PoolLabState]):
         """
         await self._ensure_connected()
 
+        # Discard any handshake status so the refresh after this command
+        # polls for post-command state rather than using stale data.
+        self.client.consume_initial_status()
+
         try:
             await self.client.send_command(command)
         except ConnectionError as err:
