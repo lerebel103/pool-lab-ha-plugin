@@ -25,3 +25,11 @@ This includes but is not limited to: `git add`, `git commit`, `git push`, `git s
 - Tests go in the `tests/` directory.
 - Use `pytest` with `pytest-asyncio` for async tests.
 - Run tests with `make test`.
+
+## Versioning
+
+- The git tag is the **single source of truth** for the version.
+- `manifest.json` contains `"version": "0.0.0"` as a dev placeholder. Do not manually update this value.
+- `pyproject.toml` has no `version` field — it is not needed for a HA integration.
+- The release workflow (`.github/workflows/release.yml`) stamps the real version from the tag into `manifest.json` before creating the release zip.
+- To release: push a semver tag (e.g. `v0.5.0`) to `main`. The workflow handles the rest.
