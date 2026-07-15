@@ -65,9 +65,10 @@ class PoolLabCoordinator(DataUpdateCoordinator[PoolLabState]):
         # Ensure we're connected (with lock to prevent concurrent reconnects)
         await self._ensure_connected()
 
-        # If we just reconnected, the handshake already gave us fresh state
+        # If we just reconnected, the handshake already gave us fresh state.
+        # Consume and clear so subsequent polls use cmd_status_request().
         if self.client.initial_status:
-            raw = self.client.initial_status
+            raw = self.client.consume_initial_status()
             return parse_status_update(raw)
 
         # Request a status update

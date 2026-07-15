@@ -13,7 +13,9 @@ def build_device_info(entry: ConfigEntry) -> DeviceInfo:
     """Build the shared device info dict for all Pool Lab entities.
 
     Uses entry.unique_id (host:port) as the stable device identifier
-    so that entity history is preserved across re-configurations.
+    so that the device registry entry is preserved across re-configurations.
+
+    Note: CONF_HOST == "host", so this is compatible with existing config entries.
     """
     return DeviceInfo(
         identifiers={(DOMAIN, entry.unique_id or entry.entry_id)},

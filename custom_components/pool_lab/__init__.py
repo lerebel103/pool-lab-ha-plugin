@@ -28,6 +28,7 @@ PoolLabConfigEntry = ConfigEntry
 
 async def async_setup_entry(hass: HomeAssistant, entry: PoolLabConfigEntry) -> bool:
     """Set up Pool Lab from a config entry."""
+    # CONF_HOST == "host" and CONF_PORT == "port" — safe for existing entries.
     host = entry.data[CONF_HOST]
     port = entry.data[CONF_PORT]
 
@@ -42,7 +43,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: PoolLabConfigEntry) -> b
 
     # Use the initial status from the handshake for the first update
     if client.initial_status:
-        coordinator.set_initial_status(client.initial_status)
+        coordinator.set_initial_status(client.consume_initial_status())
 
     # Perform the first data fetch
     await coordinator.async_config_entry_first_refresh()
