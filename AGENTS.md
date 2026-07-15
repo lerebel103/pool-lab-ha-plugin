@@ -17,6 +17,7 @@ This includes but is not limited to: `git add`, `git commit`, `git push`, `git s
 ## Project Structure
 
 - Integration code lives in `custom_components/pool_lab/`.
+- Protocol specifications live in `docs/protocol.md`. Always refer to this document when implementing or modifying protocol-level code (commands, parsing, field formats) to ensure consistency with the device behavior.
 - Do not add files outside this structure unless they are project-level config (Makefile, pyproject.toml, README, etc.).
 - Do not introduce new dependencies without discussing it first.
 
