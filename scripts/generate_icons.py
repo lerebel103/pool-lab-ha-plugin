@@ -14,6 +14,7 @@ from PIL import Image, ImageDraw
 
 SCRIPT_DIR = Path(__file__).parent
 BRAND_DIR = SCRIPT_DIR.parent / "custom_components" / "pool_lab" / "brand"
+ROOT_BRAND_DIR = SCRIPT_DIR.parent / "brand"
 
 # Brand colors
 BG_COLOR = (0, 119, 182)  # Deep pool blue
@@ -76,26 +77,31 @@ def create_icon(size: int) -> Image.Image:
 def main() -> None:
     """Generate all brand image variants."""
     BRAND_DIR.mkdir(parents=True, exist_ok=True)
+    ROOT_BRAND_DIR.mkdir(parents=True, exist_ok=True)
 
     # Generate icons (square)
     icon_256 = create_icon(256)
     icon_256.save(BRAND_DIR / "icon.png")
+    icon_256.save(ROOT_BRAND_DIR / "icon.png")
     print("  Created icon.png (256x256)")
 
     icon_512 = create_icon(512)
     icon_512.save(BRAND_DIR / "icon@2x.png")
+    icon_512.save(ROOT_BRAND_DIR / "icon@2x.png")
     print("  Created icon@2x.png (512x512)")
 
     # Logos are the same as icons (square, no text)
     logo_128 = create_icon(128)
     logo_128.save(BRAND_DIR / "logo.png")
+    logo_128.save(ROOT_BRAND_DIR / "logo.png")
     print("  Created logo.png (128x128)")
 
     logo_256 = create_icon(256)
     logo_256.save(BRAND_DIR / "logo@2x.png")
+    logo_256.save(ROOT_BRAND_DIR / "logo@2x.png")
     print("  Created logo@2x.png (256x256)")
 
-    print(f"\nAll brand images saved to: {BRAND_DIR}")
+    print(f"\nAll brand images saved to: {BRAND_DIR} and {ROOT_BRAND_DIR}")
 
 
 if __name__ == "__main__":
