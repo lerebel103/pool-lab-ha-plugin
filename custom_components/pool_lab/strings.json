@@ -8,6 +8,14 @@
           "host": "Host",
           "port": "Port"
         }
+      },
+      "reconfigure": {
+        "title": "Reconfigure Pool Lab Device",
+        "description": "Update the IP address or hostname and port of your Pool Lab device.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
       }
     },
     "error": {
