@@ -11,6 +11,7 @@ import logging
 from datetime import timedelta
 
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .client import PoolLabClient
@@ -87,17 +88,24 @@ class PoolLabCoordinator(DataUpdateCoordinator[PoolLabState]):
 
         Used by entity platforms to issue control commands.
         After sending, requests a fresh status update to sync state.
+
+        Raises HomeAssistantError on failure so the HA frontend displays
+        a clear error notification to the user.
         """
-        await self._ensure_connected()
+        try:
+            await self._ensure_connected()
+        except UpdateFailed as err:
+            raise HomeAssistantError(f"Cannot reach Pool Lab device: {err}") from err
 
         # Discard any handshake status so the refresh after this command
         # polls for post-command state rather than using stale data.
         self.client.consume_initial_status()
 
         try:
+            _LOGGER.debug("Sending command: %s", command.strip())
             await self.client.send_command(command)
         except ConnectionError as err:
-            raise UpdateFailed(f"Failed to send command: {err}") from err
+            raise HomeAssistantError(f"Failed to send command to Pool Lab device: {err}") from err
 
         # Request immediate refresh
         await self.async_request_refresh()
