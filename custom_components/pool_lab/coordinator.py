@@ -60,6 +60,7 @@ class PoolLabCoordinator(DataUpdateCoordinator[PoolLabState]):
         if self._initial_status is not None:
             raw = self._initial_status
             self._initial_status = None
+            _LOGGER.debug("Raw status (initial handshake): %s", raw)
             return parse_status_update(raw)
 
         # Ensure we're connected (with lock to prevent concurrent reconnects)
@@ -69,6 +70,7 @@ class PoolLabCoordinator(DataUpdateCoordinator[PoolLabState]):
         # Consume and clear so subsequent polls use cmd_status_request().
         if self.client.initial_status:
             raw = self.client.consume_initial_status()
+            _LOGGER.debug("Raw status (reconnect handshake): %s", raw)
             return parse_status_update(raw)
 
         # Request a status update
@@ -77,6 +79,7 @@ class PoolLabCoordinator(DataUpdateCoordinator[PoolLabState]):
         except ConnectionError as err:
             raise UpdateFailed(f"Communication error: {err}") from err
 
+        _LOGGER.debug("Raw status (poll): %s", raw)
         return parse_status_update(raw)
 
     async def async_send_command(self, command: str) -> None:
