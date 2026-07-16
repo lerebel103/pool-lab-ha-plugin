@@ -37,6 +37,12 @@
       "spa_set_temperature": { "name": "Spa Set Temperature" },
       "aux_10_mode": { "name": "AUX 10" }
     },
+    "time": {
+      "timer_1_start": { "name": "Timer 1 Start" },
+      "timer_1_stop": { "name": "Timer 1 Stop" },
+      "timer_2_start": { "name": "Timer 2 Start" },
+      "timer_2_stop": { "name": "Timer 2 Stop" }
+    },
     "binary_sensor": {
       "cell_flow": { "name": "Cell Flow" },
       "low_flow_fault": { "name": "Low Flow Fault" },
