@@ -74,13 +74,36 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Pool Lab switch entities."""
-    coordinator: PoolLabCoordinator = hass.data[DOMAIN][entry.entry_id]
+    """Set up Pool Lab switch entities.
 
-    entities = [
-        PoolLabSwitch(coordinator, description, entry) for description in SWITCH_DESCRIPTIONS
-    ]
-    async_add_entities(entities)
+    Only creates entities for hardware that is currently present.
+    Listens for coordinator updates to dynamically add new entities
+    if hardware modules are added.
+    """
+    coordinator: PoolLabCoordinator = hass.data[DOMAIN][entry.entry_id]
+    added_keys: set[str] = set()
+
+    def _check_and_add_entities() -> None:
+        """Add entities for newly available hardware."""
+        if coordinator.data is None:
+            return
+
+        new_entities = []
+        for description in SWITCH_DESCRIPTIONS:
+            if description.key in added_keys:
+                continue
+            if description.available_fn is None or description.available_fn(coordinator.data):
+                new_entities.append(PoolLabSwitch(coordinator, description, entry))
+                added_keys.add(description.key)
+
+        if new_entities:
+            async_add_entities(new_entities)
+
+    # Add initially available entities
+    _check_and_add_entities()
+
+    # Listen for updates to add entities for newly connected hardware
+    entry.async_on_unload(coordinator.async_add_listener(_check_and_add_entities))
 
 
 class PoolLabSwitch(CoordinatorEntity[PoolLabCoordinator], SwitchEntity):

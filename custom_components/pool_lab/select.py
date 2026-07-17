@@ -185,18 +185,47 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Pool Lab select entities."""
+    """Set up Pool Lab select entities.
+
+    Only creates entities for hardware that is currently present.
+    Listens for coordinator updates to dynamically add new entities
+    if hardware modules are added.
+    """
     coordinator: PoolLabCoordinator = hass.data[DOMAIN][entry.entry_id]
+    added_keys: set[str] = set()
 
     all_descriptions = _CORE_SELECTS + _GROUP_SELECTS + _AUX_SELECTS + _VALVE_SELECTS
-    entities: list[SelectEntity] = [
-        PoolLabSelect(coordinator, description, entry) for description in all_descriptions
-    ]
 
-    # Add pump speed select (uses different option mapping)
-    entities.append(PoolLabPumpSpeedSelect(coordinator, _PUMP_SPEED_SELECT, entry))
+    def _check_and_add_entities() -> None:
+        """Add entities for newly available hardware."""
+        if coordinator.data is None:
+            return
 
-    async_add_entities(entities)
+        new_entities: list[SelectEntity] = []
+
+        # Standard tri-state selects
+        for description in all_descriptions:
+            if description.key in added_keys:
+                continue
+            if description.available_fn is None or description.available_fn(coordinator.data):
+                new_entities.append(PoolLabSelect(coordinator, description, entry))
+                added_keys.add(description.key)
+
+        # Pump speed select
+        if _PUMP_SPEED_SELECT.key not in added_keys and _PUMP_SPEED_SELECT.available_fn(
+            coordinator.data
+        ):
+            new_entities.append(PoolLabPumpSpeedSelect(coordinator, _PUMP_SPEED_SELECT, entry))
+            added_keys.add(_PUMP_SPEED_SELECT.key)
+
+        if new_entities:
+            async_add_entities(new_entities)
+
+    # Add initially available entities
+    _check_and_add_entities()
+
+    # Listen for updates to add entities for newly connected hardware
+    entry.async_on_unload(coordinator.async_add_listener(_check_and_add_entities))
 
 
 class PoolLabSelect(CoordinatorEntity[PoolLabCoordinator], SelectEntity):
