@@ -142,6 +142,10 @@
       "valve_4_mode": {
         "name": "Valve 4",
         "state": { "off": "Position 1", "on": "Position 2", "auto": "Auto" }
+      },
+      "pump_speed_control": {
+        "name": "Pump Speed",
+        "state": { "low": "Low", "medium": "Medium", "high": "High" }
       }
     },
     "number": {

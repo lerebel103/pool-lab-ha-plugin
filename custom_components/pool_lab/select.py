@@ -15,7 +15,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, OutputMode, SystemFlag, SystemFlag2
+from .const import DOMAIN, OutputMode, PumpSpeed, SystemFlag, SystemFlag2
 from .coordinator import PoolLabCoordinator
 from .entity import build_device_info
 from .models import PoolLabState
@@ -27,6 +27,7 @@ from .protocol import (
     cmd_fountain,
     cmd_infloor,
     cmd_pool_light,
+    cmd_pump_speed,
     cmd_spa_boost,
     cmd_spa_light,
     cmd_valve,
@@ -159,6 +160,22 @@ def _build_valve_select(num: int) -> PoolLabSelectDescription:
     )
 
 
+# Pump speed options
+PUMP_SPEED_OPTIONS = ["low", "medium", "high"]
+_STR_TO_SPEED = {"low": PumpSpeed.LOW, "medium": PumpSpeed.MEDIUM, "high": PumpSpeed.HIGH}
+_SPEED_TO_STR = {v: k for k, v in _STR_TO_SPEED.items()}
+
+_PUMP_SPEED_SELECT = PoolLabSelectDescription(
+    key="pump_speed_control",
+    translation_key="pump_speed_control",
+    icon="mdi:pump",
+    options=PUMP_SPEED_OPTIONS,
+    value_fn=lambda s: s.pump_speed,
+    set_mode_cmd=lambda mode: cmd_pump_speed(mode),
+    available_fn=lambda s: bool(s.system_flags & SystemFlag.MS_PUMP),
+)
+
+
 _AUX_SELECTS = tuple(_build_aux_select(n) for n in range(1, 10))
 _VALVE_SELECTS = tuple(_build_valve_select(n) for n in (3, 4))
 
@@ -172,7 +189,13 @@ async def async_setup_entry(
     coordinator: PoolLabCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     all_descriptions = _CORE_SELECTS + _GROUP_SELECTS + _AUX_SELECTS + _VALVE_SELECTS
-    entities = [PoolLabSelect(coordinator, description, entry) for description in all_descriptions]
+    entities: list[SelectEntity] = [
+        PoolLabSelect(coordinator, description, entry) for description in all_descriptions
+    ]
+
+    # Add pump speed select (uses different option mapping)
+    entities.append(PoolLabPumpSpeedSelect(coordinator, _PUMP_SPEED_SELECT, entry))
+
     async_add_entities(entities)
 
 
@@ -217,4 +240,51 @@ class PoolLabSelect(CoordinatorEntity[PoolLabCoordinator], SelectEntity):
         """Handle the user selecting an option."""
         mode = _STR_TO_MODE[option]
         command = self.entity_description.set_mode_cmd(mode)
+        await self.coordinator.async_send_command(command)
+
+
+class PoolLabPumpSpeedSelect(CoordinatorEntity[PoolLabCoordinator], SelectEntity):
+    """A select entity for the Pool Lab pump speed control."""
+
+    entity_description: PoolLabSelectDescription
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator: PoolLabCoordinator,
+        description: PoolLabSelectDescription,
+        entry: ConfigEntry,
+    ) -> None:
+        """Initialize the pump speed select entity."""
+        super().__init__(coordinator)
+        self.entity_description = description
+        self._attr_unique_id = f"{entry.unique_id or entry.entry_id}_{description.key}"
+        self._attr_device_info = build_device_info(entry)
+
+    @property
+    def options(self) -> list[str]:
+        """Return available options."""
+        return PUMP_SPEED_OPTIONS
+
+    @property
+    def current_option(self) -> str | None:
+        """Return the current pump speed."""
+        if self.coordinator.data is None:
+            return None
+        speed = self.coordinator.data.pump_speed
+        return _SPEED_TO_STR.get(speed, "low")
+
+    @property
+    def available(self) -> bool:
+        """Return True if the entity is available."""
+        if not super().available:
+            return False
+        if self.coordinator.data is None:
+            return False
+        return bool(self.coordinator.data.system_flags & SystemFlag.MS_PUMP)
+
+    async def async_select_option(self, option: str) -> None:
+        """Handle the user selecting a pump speed."""
+        speed = _STR_TO_SPEED[option]
+        command = cmd_pump_speed(speed)
         await self.coordinator.async_send_command(command)

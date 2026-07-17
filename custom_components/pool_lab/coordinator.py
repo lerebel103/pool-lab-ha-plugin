@@ -42,6 +42,7 @@ class PoolLabCoordinator(DataUpdateCoordinator[PoolLabState]):
         self.client = client
         self._initial_status: str | None = None
         self._connect_lock = asyncio.Lock()
+        self._probe_done = False
 
     def set_initial_status(self, raw_status: str) -> None:
         """Store the initial status received during connection handshake.
@@ -81,7 +82,39 @@ class PoolLabCoordinator(DataUpdateCoordinator[PoolLabState]):
             raise UpdateFailed(f"Communication error: {err}") from err
 
         _LOGGER.debug("Raw status (poll): %s", raw)
-        return parse_status_update(raw)
+        state = parse_status_update(raw)
+
+        # Probe undocumented commands once after first successful poll
+        if not self._probe_done:
+            self._probe_done = True
+            await self._probe_commands()
+
+        return state
+
+    async def _probe_commands(self) -> None:
+        """Probe potential undocumented commands and log responses.
+
+        This runs once after the first successful poll to discover
+        additional device capabilities. Results are logged at WARNING
+        level so they're visible without full debug logging.
+        """
+        probe_commands = ["sn;\r", "id;\r", "si;\r", "in;\r"]
+        for cmd in probe_commands:
+            try:
+                response = await self.client.send_command(cmd)
+                _LOGGER.warning(
+                    "PROBE command '%s' got response: %s",
+                    cmd.strip(),
+                    response,
+                )
+            except ConnectionError:
+                _LOGGER.debug("PROBE command '%s' failed (no response)", cmd.strip())
+                # Reconnect for next attempt
+                try:
+                    await self.client.connect()
+                except ConnectionError:
+                    _LOGGER.debug("PROBE reconnect failed, stopping probes")
+                    break
 
     async def async_send_command(self, command: str) -> None:
         """Send a command to the device and trigger a state refresh.
