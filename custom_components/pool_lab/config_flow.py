@@ -82,10 +82,6 @@ class PoolLabConfigFlow(ConfigFlow, domain=DOMAIN):
                 _LOGGER.warning("Failed to connect to Pool Lab device: %s", err)
                 errors["base"] = "cannot_connect"
             else:
-                # Update unique ID to reflect new host:port
-                await self.async_set_unique_id(f"{host}:{port}")
-                self._abort_if_unique_id_configured()
-
                 return self.async_update_reload_and_abort(
                     entry,
                     title=f"Pool Lab ({host})",
@@ -100,7 +96,7 @@ class PoolLabConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_HOST, default=entry.data[CONF_HOST]): str,
-                    vol.Optional(CONF_PORT, default=entry.data[CONF_PORT]): int,
+                    vol.Required(CONF_PORT, default=entry.data[CONF_PORT]): int,
                 }
             ),
             errors=errors,
