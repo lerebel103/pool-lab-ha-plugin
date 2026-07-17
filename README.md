@@ -81,8 +81,6 @@ make ci
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
-The Pool Lab name and branding are trademarks of Poolpower Australia Pty Ltd. Any product names, logos, or brands used in this project are for identification purposes only and remain the property of their respective owners.
-
 ---
 
 [hacs-badge]: https://img.shields.io/badge/HACS-Custom-41BDF5.svg
