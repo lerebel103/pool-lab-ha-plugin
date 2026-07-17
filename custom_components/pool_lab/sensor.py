@@ -115,11 +115,29 @@ async def async_setup_entry(
     """Set up Pool Lab sensor entities.
 
     Only creates entities for hardware that is currently present.
+    Removes stale entities from the registry if hardware is no longer present.
     Listens for coordinator updates to dynamically add new entities
     if hardware modules are added.
     """
+    from homeassistant.helpers import entity_registry as er
+
     coordinator: PoolLabCoordinator = hass.data[DOMAIN][entry.entry_id]
     added_keys: set[str] = set()
+
+    # Remove stale entities for hardware that is no longer present
+    if coordinator.data is not None:
+        registry = er.async_get(hass)
+        entries = er.async_entries_for_config_entry(registry, entry.entry_id)
+        for entity_entry in entries:
+            if entity_entry.domain != "sensor":
+                continue
+            # Find the matching description
+            for desc in SENSOR_DESCRIPTIONS:
+                uid = f"{entry.unique_id or entry.entry_id}_{desc.key}"
+                if entity_entry.unique_id == uid and desc.available_fn is not None:
+                    if not desc.available_fn(coordinator.data):
+                        registry.async_remove(entity_entry.entity_id)
+                    break
 
     def _check_and_add_entities() -> None:
         """Add entities for newly available hardware."""
