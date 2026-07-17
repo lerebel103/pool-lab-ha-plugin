@@ -43,6 +43,7 @@ SENSOR_DESCRIPTIONS: tuple[PoolLabSensorDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda state: state.water_temp,
+        available_fn=lambda s: s.water_temp is not None,
     ),
     PoolLabSensorDescription(
         key="ph_level",
@@ -88,6 +89,7 @@ SENSOR_DESCRIPTIONS: tuple[PoolLabSensorDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda state: state.pool_set_temp,
+        available_fn=lambda s: s.pool_set_temp is not None,
     ),
     PoolLabSensorDescription(
         key="spa_set_temperature",
@@ -96,6 +98,7 @@ SENSOR_DESCRIPTIONS: tuple[PoolLabSensorDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda state: state.spa_set_temp,
+        available_fn=lambda s: s.spa_set_temp is not None,
     ),
     PoolLabSensorDescription(
         key="aux_10_mode",
