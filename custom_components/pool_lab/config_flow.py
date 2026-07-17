@@ -73,6 +73,16 @@ class PoolLabConfigFlow(ConfigFlow, domain=DOMAIN):
             host = user_input[CONF_HOST]
             port = user_input[CONF_PORT]
 
+            # Check for duplicate: another entry already using this host:port
+            for other_entry in self.hass.config_entries.async_entries(DOMAIN):
+                if other_entry.entry_id == entry.entry_id:
+                    continue
+                if (
+                    other_entry.data.get(CONF_HOST) == host
+                    and other_entry.data.get(CONF_PORT) == port
+                ):
+                    return self.async_abort(reason="already_configured")
+
             # Test the connection before saving
             client = PoolLabClient(host, port)
             try:
