@@ -100,9 +100,10 @@ class PoolLabClient:
         self._initial_status = await self._read_line()
 
         _LOGGER.debug(
-            "Successfully connected to Pool Lab device at %s:%s",
+            "Connected to Pool Lab device at %s:%s, initial status: %s",
             self._host,
             self._port,
+            self._initial_status,
         )
 
     async def close(self) -> None:

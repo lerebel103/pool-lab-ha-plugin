@@ -43,6 +43,7 @@ SENSOR_DESCRIPTIONS: tuple[PoolLabSensorDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda state: state.water_temp,
+        available_fn=lambda s: s.water_temp is not None,
     ),
     PoolLabSensorDescription(
         key="ph_level",
@@ -88,6 +89,7 @@ SENSOR_DESCRIPTIONS: tuple[PoolLabSensorDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda state: state.pool_set_temp,
+        available_fn=lambda s: s.pool_set_temp is not None,
     ),
     PoolLabSensorDescription(
         key="spa_set_temperature",
@@ -96,6 +98,7 @@ SENSOR_DESCRIPTIONS: tuple[PoolLabSensorDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda state: state.spa_set_temp,
+        available_fn=lambda s: s.spa_set_temp is not None,
     ),
     PoolLabSensorDescription(
         key="aux_10_mode",
@@ -112,13 +115,54 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Pool Lab sensor entities."""
-    coordinator: PoolLabCoordinator = hass.data[DOMAIN][entry.entry_id]
+    """Set up Pool Lab sensor entities.
 
-    entities = [
-        PoolLabSensor(coordinator, description, entry) for description in SENSOR_DESCRIPTIONS
-    ]
-    async_add_entities(entities)
+    Only creates entities for hardware that is currently present.
+    Removes stale entities from the registry if hardware is no longer present.
+    Listens for coordinator updates to dynamically add new entities
+    if hardware modules are added.
+    """
+    from homeassistant.helpers import entity_registry as er
+
+    coordinator: PoolLabCoordinator = hass.data[DOMAIN][entry.entry_id]
+    added_keys: set[str] = set()
+
+    # Remove stale entities for hardware that is no longer present
+    if coordinator.data is not None:
+        registry = er.async_get(hass)
+        entries = er.async_entries_for_config_entry(registry, entry.entry_id)
+        for entity_entry in entries:
+            if entity_entry.domain != "sensor":
+                continue
+            # Find the matching description
+            for desc in SENSOR_DESCRIPTIONS:
+                uid = f"{entry.unique_id or entry.entry_id}_{desc.key}"
+                if entity_entry.unique_id == uid and desc.available_fn is not None:
+                    if not desc.available_fn(coordinator.data):
+                        registry.async_remove(entity_entry.entity_id)
+                    break
+
+    def _check_and_add_entities() -> None:
+        """Add entities for newly available hardware."""
+        if coordinator.data is None:
+            return
+
+        new_entities = []
+        for description in SENSOR_DESCRIPTIONS:
+            if description.key in added_keys:
+                continue
+            if description.available_fn is None or description.available_fn(coordinator.data):
+                new_entities.append(PoolLabSensor(coordinator, description, entry))
+                added_keys.add(description.key)
+
+        if new_entities:
+            async_add_entities(new_entities)
+
+    # Add initially available entities
+    _check_and_add_entities()
+
+    # Listen for updates to add entities for newly connected hardware
+    entry.async_on_unload(coordinator.async_add_listener(_check_and_add_entities))
 
 
 class PoolLabSensor(CoordinatorEntity[PoolLabCoordinator], SensorEntity):

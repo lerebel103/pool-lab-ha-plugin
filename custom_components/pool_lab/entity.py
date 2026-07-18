@@ -22,6 +22,7 @@ def build_device_info(entry: ConfigEntry) -> DeviceInfo:
     return DeviceInfo(
         identifiers={(DOMAIN, identifier)},
         name=f"Pool Lab ({entry.data[CONF_HOST]})",
-        manufacturer="lerebel103",
+        manufacturer="Poolpower Australia",
         model="PL MAX Series",
+        suggested_area="Pool",
     )

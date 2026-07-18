@@ -119,6 +119,21 @@ These control groups of outputs configured in the system. All support toggle (no
 | `so,<x>;` | 1, 2, or 3 | Set pump speed override |
 | `co,<xxx>;` | 0-100 | Set chlorinator output % (only without ASP module) |
 
+### Filtration Timers (required parameter)
+
+| Command | Parameter | Description |
+|---------|-----------|-------------|
+| `s1h,<xx>;` | 0-23 | Set timer 1 start hour |
+| `s1m,<xx>;` | 0-59 | Set timer 1 start minute |
+| `e1h,<xx>;` | 0-23 | Set timer 1 end hour |
+| `e1m,<xx>;` | 0-59 | Set timer 1 end minute |
+| `s2h,<xx>;` | 0-23 | Set timer 2 start hour |
+| `s2m,<xx>;` | 0-59 | Set timer 2 start minute |
+| `e2h,<xx>;` | 0-23 | Set timer 2 end hour |
+| `e2m,<xx>;` | 0-59 | Set timer 2 end minute |
+
+Note: If the filter is running in AUTO mode within a timer period and you change the end time so the current time is no longer within the period, the system will perform a plumbing flush.
+
 ## Status Update Format
 
 The status update is a semicolon-delimited string of `KEY=VALUE` pairs:

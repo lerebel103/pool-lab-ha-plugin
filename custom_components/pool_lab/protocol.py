@@ -165,6 +165,42 @@ def cmd_chlorinator_output(percent: int) -> str:
     return f"co,{percent};\r"
 
 
+def cmd_timer_start_hour(timer: int, hour: int) -> str:
+    """Build a timer start hour command."""
+    if timer not in (1, 2):
+        raise ValueError(f"Timer must be 1 or 2, got {timer}")
+    if not 0 <= hour <= 23:
+        raise ValueError(f"Hour must be 0-23, got {hour}")
+    return f"s{timer}h,{hour};\r"
+
+
+def cmd_timer_start_minute(timer: int, minute: int) -> str:
+    """Build a timer start minute command."""
+    if timer not in (1, 2):
+        raise ValueError(f"Timer must be 1 or 2, got {timer}")
+    if not 0 <= minute <= 59:
+        raise ValueError(f"Minute must be 0-59, got {minute}")
+    return f"s{timer}m,{minute};\r"
+
+
+def cmd_timer_end_hour(timer: int, hour: int) -> str:
+    """Build a timer end hour command."""
+    if timer not in (1, 2):
+        raise ValueError(f"Timer must be 1 or 2, got {timer}")
+    if not 0 <= hour <= 23:
+        raise ValueError(f"Hour must be 0-23, got {hour}")
+    return f"e{timer}h,{hour};\r"
+
+
+def cmd_timer_end_minute(timer: int, minute: int) -> str:
+    """Build a timer end minute command."""
+    if timer not in (1, 2):
+        raise ValueError(f"Timer must be 1 or 2, got {timer}")
+    if not 0 <= minute <= 59:
+        raise ValueError(f"Minute must be 0-59, got {minute}")
+    return f"e{timer}m,{minute};\r"
+
+
 # ---------------------------------------------------------------------------
 # Response parsing
 # ---------------------------------------------------------------------------

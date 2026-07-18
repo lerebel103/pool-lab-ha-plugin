@@ -16,6 +16,7 @@ for mod in [
     "homeassistant.components.select",
     "homeassistant.components.sensor",
     "homeassistant.components.switch",
+    "homeassistant.components.time",
     "homeassistant.config_entries",
     "homeassistant.const",
     "homeassistant.core",

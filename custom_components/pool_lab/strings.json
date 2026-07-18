@@ -8,6 +8,14 @@
           "host": "Host",
           "port": "Port"
         }
+      },
+      "reconfigure": {
+        "title": "Reconfigure Pool Lab Device",
+        "description": "Update the IP address or hostname and port of your Pool Lab device.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
       }
     },
     "error": {
@@ -28,6 +36,12 @@
       "pool_set_temperature": { "name": "Pool Set Temperature" },
       "spa_set_temperature": { "name": "Spa Set Temperature" },
       "aux_10_mode": { "name": "AUX 10" }
+    },
+    "time": {
+      "timer_1_start": { "name": "Timer 1 Start" },
+      "timer_1_stop": { "name": "Timer 1 Stop" },
+      "timer_2_start": { "name": "Timer 2 Start" },
+      "timer_2_stop": { "name": "Timer 2 Stop" }
     },
     "binary_sensor": {
       "cell_flow": { "name": "Cell Flow" },
@@ -128,6 +142,10 @@
       "valve_4_mode": {
         "name": "Valve 4",
         "state": { "off": "Position 1", "on": "Position 2", "auto": "Auto" }
+      },
+      "pump_speed_control": {
+        "name": "Pump Speed",
+        "state": { "low": "Low", "medium": "Medium", "high": "High" }
       }
     },
     "number": {

@@ -24,6 +24,10 @@ from custom_components.pool_lab.protocol import (
     cmd_solar_heat,
     cmd_spa_temp_target,
     cmd_status_request,
+    cmd_timer_end_hour,
+    cmd_timer_end_minute,
+    cmd_timer_start_hour,
+    cmd_timer_start_minute,
     cmd_valve,
     parse_status_update,
 )
@@ -97,6 +101,34 @@ class TestCommandBuilders:
     def test_chlorinator_output_invalid(self) -> None:
         with pytest.raises(ValueError):
             cmd_chlorinator_output(101)
+
+    def test_timer_start_hour(self) -> None:
+        assert cmd_timer_start_hour(1, 8) == "s1h,8;\r"
+        assert cmd_timer_start_hour(2, 23) == "s2h,23;\r"
+
+    def test_timer_start_minute(self) -> None:
+        assert cmd_timer_start_minute(1, 0) == "s1m,0;\r"
+        assert cmd_timer_start_minute(2, 59) == "s2m,59;\r"
+
+    def test_timer_end_hour(self) -> None:
+        assert cmd_timer_end_hour(1, 17) == "e1h,17;\r"
+        assert cmd_timer_end_hour(2, 0) == "e2h,0;\r"
+
+    def test_timer_end_minute(self) -> None:
+        assert cmd_timer_end_minute(1, 30) == "e1m,30;\r"
+        assert cmd_timer_end_minute(2, 0) == "e2m,0;\r"
+
+    def test_timer_invalid_timer_number(self) -> None:
+        with pytest.raises(ValueError):
+            cmd_timer_start_hour(3, 8)
+
+    def test_timer_invalid_hour(self) -> None:
+        with pytest.raises(ValueError):
+            cmd_timer_start_hour(1, 24)
+
+    def test_timer_invalid_minute(self) -> None:
+        with pytest.raises(ValueError):
+            cmd_timer_start_minute(1, 60)
 
 
 class TestStatusParsing:

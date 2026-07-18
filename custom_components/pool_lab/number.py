@@ -40,6 +40,7 @@ class PoolLabNumberDescription(NumberEntityDescription):
 
     value_fn: Callable[[PoolLabState], float | None]
     set_value_cmd: Callable[[float], str]
+    available_fn: Callable[[PoolLabState], bool] | None = None
 
 
 NUMBER_DESCRIPTIONS: tuple[PoolLabNumberDescription, ...] = (
@@ -55,6 +56,7 @@ NUMBER_DESCRIPTIONS: tuple[PoolLabNumberDescription, ...] = (
         icon="mdi:thermometer-water",
         value_fn=lambda s: s.pool_set_temp,
         set_value_cmd=lambda v: cmd_pool_temp_target(v),
+        available_fn=lambda s: s.pool_set_temp is not None,
     ),
     PoolLabNumberDescription(
         key="spa_temp_target",
@@ -68,6 +70,7 @@ NUMBER_DESCRIPTIONS: tuple[PoolLabNumberDescription, ...] = (
         icon="mdi:thermometer-water",
         value_fn=lambda s: s.spa_set_temp,
         set_value_cmd=lambda v: cmd_spa_temp_target(v),
+        available_fn=lambda s: s.spa_set_temp is not None,
     ),
     PoolLabNumberDescription(
         key="ph_target",
@@ -112,13 +115,52 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Pool Lab number entities."""
-    coordinator: PoolLabCoordinator = hass.data[DOMAIN][entry.entry_id]
+    """Set up Pool Lab number entities.
 
-    entities = [
-        PoolLabNumber(coordinator, description, entry) for description in NUMBER_DESCRIPTIONS
-    ]
-    async_add_entities(entities)
+    Only creates entities for data that is currently reported by the device.
+    Removes stale entities from the registry if data is no longer present.
+    Listens for coordinator updates to dynamically add new entities.
+    """
+    from homeassistant.helpers import entity_registry as er
+
+    coordinator: PoolLabCoordinator = hass.data[DOMAIN][entry.entry_id]
+    added_keys: set[str] = set()
+
+    # Remove stale entities for data that is no longer present
+    if coordinator.data is not None:
+        registry = er.async_get(hass)
+        entries = er.async_entries_for_config_entry(registry, entry.entry_id)
+        for entity_entry in entries:
+            if entity_entry.domain != "number":
+                continue
+            for desc in NUMBER_DESCRIPTIONS:
+                uid = f"{entry.unique_id or entry.entry_id}_{desc.key}"
+                if entity_entry.unique_id == uid and desc.available_fn is not None:
+                    if not desc.available_fn(coordinator.data):
+                        registry.async_remove(entity_entry.entity_id)
+                    break
+
+    def _check_and_add_entities() -> None:
+        """Add entities for newly available data."""
+        if coordinator.data is None:
+            return
+
+        new_entities = []
+        for description in NUMBER_DESCRIPTIONS:
+            if description.key in added_keys:
+                continue
+            if description.available_fn is None or description.available_fn(coordinator.data):
+                new_entities.append(PoolLabNumber(coordinator, description, entry))
+                added_keys.add(description.key)
+
+        if new_entities:
+            async_add_entities(new_entities)
+
+    # Add initially available entities
+    _check_and_add_entities()
+
+    # Listen for updates to add entities if new data becomes available
+    entry.async_on_unload(coordinator.async_add_listener(_check_and_add_entities))
 
 
 class PoolLabNumber(CoordinatorEntity[PoolLabCoordinator], NumberEntity):

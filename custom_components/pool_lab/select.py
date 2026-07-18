@@ -15,7 +15,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, OutputMode, SystemFlag, SystemFlag2
+from .const import DOMAIN, OutputMode, PumpSpeed, SystemFlag, SystemFlag2
 from .coordinator import PoolLabCoordinator
 from .entity import build_device_info
 from .models import PoolLabState
@@ -27,6 +27,7 @@ from .protocol import (
     cmd_fountain,
     cmd_infloor,
     cmd_pool_light,
+    cmd_pump_speed,
     cmd_spa_boost,
     cmd_spa_light,
     cmd_valve,
@@ -159,6 +160,22 @@ def _build_valve_select(num: int) -> PoolLabSelectDescription:
     )
 
 
+# Pump speed options
+PUMP_SPEED_OPTIONS = ["low", "medium", "high"]
+_STR_TO_SPEED = {"low": PumpSpeed.LOW, "medium": PumpSpeed.MEDIUM, "high": PumpSpeed.HIGH}
+_SPEED_TO_STR = {v: k for k, v in _STR_TO_SPEED.items()}
+
+_PUMP_SPEED_SELECT = PoolLabSelectDescription(
+    key="pump_speed_control",
+    translation_key="pump_speed_control",
+    icon="mdi:pump",
+    options=PUMP_SPEED_OPTIONS,
+    value_fn=lambda s: s.pump_speed,
+    set_mode_cmd=lambda mode: cmd_pump_speed(mode),
+    available_fn=lambda s: bool(s.system_flags & SystemFlag.MS_PUMP),
+)
+
+
 _AUX_SELECTS = tuple(_build_aux_select(n) for n in range(1, 10))
 _VALVE_SELECTS = tuple(_build_valve_select(n) for n in (3, 4))
 
@@ -168,12 +185,65 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Pool Lab select entities."""
+    """Set up Pool Lab select entities.
+
+    Only creates entities for hardware that is currently present.
+    Removes stale entities from the registry if hardware is no longer present.
+    Listens for coordinator updates to dynamically add new entities
+    if hardware modules are added.
+    """
+    from homeassistant.helpers import entity_registry as er
+
     coordinator: PoolLabCoordinator = hass.data[DOMAIN][entry.entry_id]
+    added_keys: set[str] = set()
 
     all_descriptions = _CORE_SELECTS + _GROUP_SELECTS + _AUX_SELECTS + _VALVE_SELECTS
-    entities = [PoolLabSelect(coordinator, description, entry) for description in all_descriptions]
-    async_add_entities(entities)
+    all_with_pump = [*all_descriptions, _PUMP_SPEED_SELECT]
+
+    # Remove stale entities for hardware that is no longer present
+    if coordinator.data is not None:
+        registry = er.async_get(hass)
+        entries = er.async_entries_for_config_entry(registry, entry.entry_id)
+        for entity_entry in entries:
+            if entity_entry.domain != "select":
+                continue
+            for desc in all_with_pump:
+                uid = f"{entry.unique_id or entry.entry_id}_{desc.key}"
+                if entity_entry.unique_id == uid and desc.available_fn is not None:
+                    if not desc.available_fn(coordinator.data):
+                        registry.async_remove(entity_entry.entity_id)
+                    break
+
+    def _check_and_add_entities() -> None:
+        """Add entities for newly available hardware."""
+        if coordinator.data is None:
+            return
+
+        new_entities: list[SelectEntity] = []
+
+        # Standard tri-state selects
+        for description in all_descriptions:
+            if description.key in added_keys:
+                continue
+            if description.available_fn is None or description.available_fn(coordinator.data):
+                new_entities.append(PoolLabSelect(coordinator, description, entry))
+                added_keys.add(description.key)
+
+        # Pump speed select
+        if _PUMP_SPEED_SELECT.key not in added_keys and _PUMP_SPEED_SELECT.available_fn(
+            coordinator.data
+        ):
+            new_entities.append(PoolLabPumpSpeedSelect(coordinator, _PUMP_SPEED_SELECT, entry))
+            added_keys.add(_PUMP_SPEED_SELECT.key)
+
+        if new_entities:
+            async_add_entities(new_entities)
+
+    # Add initially available entities
+    _check_and_add_entities()
+
+    # Listen for updates to add entities for newly connected hardware
+    entry.async_on_unload(coordinator.async_add_listener(_check_and_add_entities))
 
 
 class PoolLabSelect(CoordinatorEntity[PoolLabCoordinator], SelectEntity):
@@ -217,4 +287,51 @@ class PoolLabSelect(CoordinatorEntity[PoolLabCoordinator], SelectEntity):
         """Handle the user selecting an option."""
         mode = _STR_TO_MODE[option]
         command = self.entity_description.set_mode_cmd(mode)
+        await self.coordinator.async_send_command(command)
+
+
+class PoolLabPumpSpeedSelect(CoordinatorEntity[PoolLabCoordinator], SelectEntity):
+    """A select entity for the Pool Lab pump speed control."""
+
+    entity_description: PoolLabSelectDescription
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator: PoolLabCoordinator,
+        description: PoolLabSelectDescription,
+        entry: ConfigEntry,
+    ) -> None:
+        """Initialize the pump speed select entity."""
+        super().__init__(coordinator)
+        self.entity_description = description
+        self._attr_unique_id = f"{entry.unique_id or entry.entry_id}_{description.key}"
+        self._attr_device_info = build_device_info(entry)
+
+    @property
+    def options(self) -> list[str]:
+        """Return available options."""
+        return PUMP_SPEED_OPTIONS
+
+    @property
+    def current_option(self) -> str | None:
+        """Return the current pump speed."""
+        if self.coordinator.data is None:
+            return None
+        speed = self.coordinator.data.pump_speed
+        return _SPEED_TO_STR.get(speed, "low")
+
+    @property
+    def available(self) -> bool:
+        """Return True if the entity is available."""
+        if not super().available:
+            return False
+        if self.coordinator.data is None:
+            return False
+        return bool(self.coordinator.data.system_flags & SystemFlag.MS_PUMP)
+
+    async def async_select_option(self, option: str) -> None:
+        """Handle the user selecting a pump speed."""
+        speed = _STR_TO_SPEED[option]
+        command = cmd_pump_speed(speed)
         await self.coordinator.async_send_command(command)
