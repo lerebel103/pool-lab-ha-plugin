@@ -115,6 +115,7 @@ class PoolLabTime(CoordinatorEntity[PoolLabCoordinator], TimeEntity):
 
         Sends separate commands for hour and minute as required
         by the device protocol (e.g. s1h,8; s1m,30;).
+        Both are sent together with a single state refresh.
         """
         timer_num = self.entity_description.timer_number
 
@@ -125,5 +126,4 @@ class PoolLabTime(CoordinatorEntity[PoolLabCoordinator], TimeEntity):
             hour_cmd = cmd_timer_end_hour(timer_num, value.hour)
             minute_cmd = cmd_timer_end_minute(timer_num, value.minute)
 
-        await self.coordinator.async_send_command(hour_cmd)
-        await self.coordinator.async_send_command(minute_cmd)
+        await self.coordinator.async_send_commands([hour_cmd, minute_cmd])

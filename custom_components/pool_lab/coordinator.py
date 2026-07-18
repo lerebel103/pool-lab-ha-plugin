@@ -112,6 +112,31 @@ class PoolLabCoordinator(DataUpdateCoordinator[PoolLabState]):
         # Request immediate refresh
         await self.async_request_refresh()
 
+    async def async_send_commands(self, commands: list[str]) -> None:
+        """Send multiple commands to the device with a single state refresh.
+
+        Used when an operation requires multiple sequential commands
+        (e.g. setting timer hour and minute separately).
+        """
+        try:
+            await self._ensure_connected()
+        except UpdateFailed as err:
+            raise HomeAssistantError(f"Cannot reach Pool Lab device: {err}") from err
+
+        self.client.consume_initial_status()
+
+        for command in commands:
+            try:
+                _LOGGER.debug("Sending command: %s", command.strip())
+                await self.client.send_command(command)
+            except ConnectionError as err:
+                raise HomeAssistantError(
+                    f"Failed to send command to Pool Lab device: {err}"
+                ) from err
+
+        # Single refresh after all commands are sent
+        await self.async_request_refresh()
+
     async def _ensure_connected(self) -> None:
         """Ensure the client is connected, reconnecting if necessary.
 
